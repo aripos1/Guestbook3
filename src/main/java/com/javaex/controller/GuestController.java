@@ -55,11 +55,11 @@ public class GuestController {
 
 	// 삭제
 	@RequestMapping(value = "/delete", method = { RequestMethod.GET, RequestMethod.POST })
-	public String delete(@RequestParam("no") int no, @RequestParam("password") String inputPassword) {
+	public String delete(@RequestParam("no") int no, @RequestParam("password") String password) {
 		System.out.println("delete 요청");
 
 		// 데이터베이스에서 삭제 처리
-		boolean isDeleted = guestbookService.exeDelete(no, inputPassword);
+		boolean isDeleted = guestbookService.exeDelete(no, password);
 
 		if (isDeleted) {
 			System.out.println("삭제 성공");

@@ -76,14 +76,13 @@ public class GuestbookDao {
 	}
 	// 삭제하기
 
-	public boolean deleteGuest(int no, String inputPassword) {
-		Map<String, Object> params = new HashMap<>();
-		params.put("no", no);
-		params.put("password", inputPassword);
-		
-		int isDeleted = sqlSession.delete("guestbook.delete", params);
+	public boolean deleteGuest(int no, String password) {
+		System.out.println("delete 요청111");
+		GuestVo guest = new GuestVo(no, password);
 
-		return isDeleted >0;
+		int isDeleted = sqlSession.delete("guestbook.delete", guest);
+
+		return isDeleted > 0;
 
 	}
 

@@ -36,9 +36,9 @@ public class GuestbookService {
 		return guestVo;
 	}
 
-	public boolean exeDelete(int no, String inputPassword) {
+	public boolean exeDelete(int no, String password) {
 
-		boolean isDeleted = guestbookDao.deleteGuest(no, inputPassword);
+		boolean isDeleted = guestbookDao.deleteGuest(no,password);
 
 		return isDeleted;
 	}

@@ -31,7 +31,7 @@
 		]]>
 	</select>
 
-	<delete id="delete" parameterType="map">
+	<delete id="delete" parameterType="com.javaex.vo.GuestVo">
 		<![CDATA[
 			DELETE FROM guestbook
 			where no = #{no} 
