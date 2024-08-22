@@ -66,8 +66,8 @@ public class GuestController {
 			// 삭제 성공 시 리스트 페이지로 리다이렉트
 			return "redirect:/list";
 		} else {
-
-			return "" + no;
+			System.out.println("삭제 실패");
+			return "redirect:/list";
 		}
 
 	}
