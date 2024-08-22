@@ -1,22 +1,25 @@
 package com.javaex.dao;
 
-import java.time.LocalDateTime;
-import java.sql.Timestamp;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.javaex.vo.GuestVo;
+
 @Repository
 public class GuestbookDao {
-
+	@Autowired
+	private SqlSession sqlSession;
 	// 필드
 	// 필드
 	private Connection conn = null;
@@ -71,89 +74,36 @@ public class GuestbookDao {
 		}
 
 	}
-	//삭제하기
+	// 삭제하기
+
 	public boolean deleteGuest(int no, String inputPassword) {
-	    boolean isDeleted = false;
+		Map<String, Object> params = new HashMap<>();
+		params.put("no", no);
+		params.put("password", inputPassword);
 		
-		this.getConnection();
-		try {
-			String query = "";
-			query += " DELETE FROM guestbook ";
-			query += " where no = ? ";
-			query += " AND password = ? ";
-			
-			pstmt = conn.prepareStatement(query);
-			pstmt.setInt(1, no);
-			pstmt.setString(2, inputPassword); 
-			 
-			int delete = pstmt.executeUpdate();
-		    isDeleted = delete > 0;  // 삭제된 행이 있으면 성공
-			System.out.println("삭제하기");
-			
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		}
-		this.close();
-		return isDeleted;
-		
+		int isDeleted = sqlSession.delete("guestbook.delete", params);
+
+		return isDeleted >0;
+
 	}
-	
-	
-	
+
 	// 게스트 한명만 불러오기
 	public GuestVo getGuestOne(int no) {
-		GuestVo guestVo = null;
 
-		this.getConnection();
-
-		try {
-			String query = "";
-			query += " select no ";
-			query += " from guestbook ";
-			query += " where no = ? ";
-
-			pstmt = conn.prepareStatement(query);
-			pstmt.setInt(1, no);
-
-			rs = pstmt.executeQuery();
-
-			rs.next();
-			int num = rs.getInt("no");
-			guestVo = new GuestVo(num);
-
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		}
-		this.close();
-		
+		GuestVo guestVo = sqlSession.selectOne("guestbook.selectOne", no);
+		System.out.println(guestVo);
 		return guestVo;
 
 	}
 
 	// 등록하기
 	public int insertGuest(GuestVo guestVo) {
-		int count = -1;
 
-		this.getConnection();
-
-		try {
-			
-			String query = "";
-			query += " insert into guestbook ";
-			query += " values(null, ? , ? , ? , ?) ";
-			LocalDateTime regDate = (guestVo.getRegDate() != null) ? guestVo.getRegDate() : LocalDateTime.now();
-			pstmt = conn.prepareStatement(query);
-			pstmt.setString(1, guestVo.getName());
-			pstmt.setString(2, guestVo.getPassword());
-			pstmt.setString(3, guestVo.getContent());
-			pstmt.setTimestamp(4, Timestamp.valueOf(regDate));
-
-			count = pstmt.executeUpdate();
-
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
+		if (guestVo.getRegDate() == null) {
+			guestVo.setRegDate(LocalDateTime.now());
 		}
-		this.close();
+
+		int count = sqlSession.insert("guestbook.insert", guestVo);
 
 		return count;
 	}
@@ -162,43 +112,8 @@ public class GuestbookDao {
 
 	public List<GuestVo> getGuestList() {
 
-		List<GuestVo> guestList = new ArrayList<GuestVo>();
-
-		this.getConnection();
-
-		try {
-
-			// sql문 준비 / 바인딩(말랑말랑) / 실행
-
-			String query = "";
-			query += " select no ";
-			query += " 		,name ";
-			query += " 		,content ";
-			query += "    	,reg_date ";
-			query += " from guestbook ";
-
-			pstmt = conn.prepareStatement(query);
-
-			rs = pstmt.executeQuery();
-
-			// 결과처리
-			while (rs.next()) {
-				int no = rs.getInt("no");
-				String name = rs.getString("name");
-				String content = rs.getString("content");
-				String date = rs.getString("reg_date");
-
-				GuestVo guestVo = new GuestVo(no, name, content, date);
-
-				guestList.add(guestVo);
-
-			}
-
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		}
-		this.close();
-
+		List<GuestVo> guestList = sqlSession.selectList("guestbook.selectList");
+		System.out.println(guestList);
 		return guestList;
 
 	}
